@@ -34,8 +34,8 @@ int main(int argc, char **argv)
 		float x_2 = 1.0;
 		float y_o = -1.0;
 		float z_o = 0.0;
-		float b = 0; // 0, 1, -1
-		float c = 1.0; // 1, -1
+		float b = -1.0; // 0, 1, -1
+		float c = -1.0; // 1, -1
 		float f_prime = 1.0;
 		x = x_1;
 		float x_hat = x_2;
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 	/* Create a header */ 
 	header(ROWS, COLS, head);
 
-	ofile = "hw1_part3_projection_b_0_c_1.ras";// this is the name of your output file, modify the name according to the requirements
+	ofile = "hw1_part3_projection_b_m1_c_m1.ras";// this is the name of your output file, modify the name according to the requirements
 
 	if (!(fp = fopen(ofile, "wb")))
 		fprintf(stderr, "error: could not open %s\n", ofile), exit(1);

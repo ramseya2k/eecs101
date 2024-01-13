@@ -45,10 +45,10 @@ int main(int argc, char **argv)
 		float z_hat = z_o + t*c;
 
 		/* Modify these according to the projection */
-		xprime = f_prime*x/z;
-		float x_prime_hat = f_prime*x_hat/z_hat;
-		yprime = f_prime*y/z;
-		float y_prime_hat = f_prime*y_hat/z_hat;
+		xprime = x;
+		float x_prime_hat = x_hat;
+		yprime = y;
+		float y_prime_hat = y_hat;
 
 		plot_logical_point(xprime, yprime, image);
 		plot_logical_point(x_prime_hat, y_prime_hat, image);
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 	/* Create a header */ 
 	header(ROWS, COLS, head);
 
-	ofile = "hw1_part3_projection_b_0_c_1.ras";// this is the name of your output file, modify the name according to the requirements
+	ofile = "hw1_part3_orthogonal_b_0_c_1.ras";// this is the name of your output file, modify the name according to the requirements
 
 	if (!(fp = fopen(ofile, "wb")))
 		fprintf(stderr, "error: could not open %s\n", ofile), exit(1);
