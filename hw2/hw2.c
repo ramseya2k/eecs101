@@ -9,9 +9,11 @@
 int main( int argc, char **argv )
 {
 
-	int			i;
+	int			i, x, y, k;
 	FILE			*fp;
-	float			u, var;
+	float			u = 0.0;
+	float 			var = 0.0;
+	float			N = 100.0;
 	unsigned char	image[ROWS][COLUMNS];
   	char			*ifile, *ofile, ch;
 	char			filename[4][50];
@@ -26,29 +28,38 @@ int main( int argc, char **argv )
 	//Assign each image name in filename to ifile here	
 	/* example: ifile = filename[k]; k=0,1,2,3; a loop might be needed*/
 
-
-	if (( fp = fopen( ifile, "rb" )) == NULL )
+	for(k=0; k<4; k++)
 	{
-	  fprintf( stderr, "error: couldn't open %s\n", ifile );
-	  exit( 1 );
-	}			
+		ifile = filename[k];
+		if (( fp = fopen( ifile, "rb" )) == NULL )
+		{
+	  		fprintf( stderr, "error: couldn't open %s\n", ifile );
+	  		exit( 1 );
+		}			
 
-	for ( i = 0; i < ROWS ; i++ )
-	  if ( fread( image[i], 1, COLUMNS, fp ) != COLUMNS )
-	  {
-	    fprintf( stderr, "error: couldn't read enough stuff\n" );
-	    exit( 1 );
-	  }
+		for ( i = 0; i < ROWS ; i++ )
+	  		if ( fread( image[i], 1, COLUMNS, fp ) != COLUMNS )
+	  		{
+	    		fprintf( stderr, "error: couldn't read enough stuff\n" );
+	    		exit( 1 );
+	  		}
 
-	fclose( fp );
+			fclose( fp );
 
 	//Calculate Mean for each image here
-
+		for(x=0; x < ROWS; x++)
+			for(y=0; y < COLUMNS; y++)
+				u += image[x][y];
+		u /= pow(N, 2);
 	//Calculate Variance for each image here
+		for(x=0; x < ROWS; x++)
+			for(y=0; y < COLUMNS; y++)
+				var += pow((image[x][y] - u), 2);
+		var /= (pow(N, 2)-1);
 
 	//Print mean and variance for each image
-	printf("%s: %f %f\n", ifile, u, var);
-
+		printf("%s: %f %f\n", ifile, u, var);
+	}
 	printf("Press any key to exit: ");
 	gets ( &ch );
 
