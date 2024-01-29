@@ -53,7 +53,7 @@ int main( int argc, char **argv )
 		for(i=0; i < ROWS; i++)
 			for(j=0; j < COLUMNS; j++)
 			{
-				if(imaqge[i][j] < threshold[k])
+				if(bimaqge[i][j] < threshold[k])
 				{
 					bimage[i][j] = 255;
 					A++;
