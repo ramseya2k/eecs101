@@ -19,8 +19,14 @@ int main( int argc, char **argv )
 	float			xbar, ybar;
 
 	strcpy(filename[0], "image1.raw");
-	strcpy(filename[1], "image2.raw");
-	strcpy(filename[2], "image3.raw");
+	strcpy(filename[1], "image1-b.ras");
+	strcpy(filename[2], "image1.ras");
+	strcpy(filename[3], "image2.raw");
+	strcpy(filename[4], "image2-b.ras");
+	strcpy(filename[5], "image2.ras");
+	strcpy(filename[6], "image3.raw");
+	strcpy(filename[7], "image3-b.ras");
+	strcpy(filename[8], "image3.ras");
 	header ( ROWS, COLUMNS, head );
 
 	printf("Filename: Threshold Area X Y\n");
@@ -50,28 +56,16 @@ int main( int argc, char **argv )
 
 		/* Convert each image into binary image with its respective threshold value，
 		compute the center of image, and mark the center of image with a small cross sign filled with pixel of value around 128*/
-		for(i=0; i < ROWS; i++)
-			for(j=0; j < COLUMNS; j++)
-			{
-				if(bimaqge[i][j] < threshold[k])
-				{
-					bimage[i][j] = 255;
-					A++;
-					xbar += i;
-					ybar += j;
-				}
 
-				else
-					bimage[i][j] = 0;
-			}
+		/* Compute the center */
+		// Write code here
 
 
-		xbar /= A;
-		ybar /= A;
+		/* Mark the center */
+		// Write code here
 		
-		for(i = (int) xbar - 2; i <= (int) xbar+2; i++)
-			for(j = (int) ybar - 2; j <= (int) ybar+2; j++)
-				bimage[i][j] = 128;	
+		
+		
 		
 		
 		/* Save the binary image */			
@@ -168,4 +162,6 @@ void header( int row, int col, unsigned char head[32] )
 	*(p + 7) = 0xf8;
 */
 }
+
+
 
