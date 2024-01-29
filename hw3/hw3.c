@@ -50,16 +50,28 @@ int main( int argc, char **argv )
 
 		/* Convert each image into binary image with its respective threshold value，
 		compute the center of image, and mark the center of image with a small cross sign filled with pixel of value around 128*/
+		for(i=0; i < ROWS; i++)
+			for(j=0; j < COLUMNS; j++)
+			{
+				if(imaqge[i][j] < threshold[k])
+				{
+					bimage[i][j] = 255;
+					A++;
+					xbar += i;
+					ybar += j;
+				}
 
-		/* Compute the center */
-		// Write code here
+				else
+					bimage[i][j] = 0;
+			}
 
 
-		/* Mark the center */
-		// Write code here
+		xbar /= A;
+		ybar /= A;
 		
-		
-		
+		for(i = (int) xbar - 2; i <= (int) xbar+2; i++)
+			for(j = (int) ybar - 2; j <= (int) ybar+2; j++)
+				bimage[i][j] = 128;	
 		
 		
 		/* Save the binary image */			
