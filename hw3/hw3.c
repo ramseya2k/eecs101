@@ -53,10 +53,6 @@ int main(int argc, char **argv)
             }
         fclose(fp);
 
-        /* Convert each image into a binary image with its respective threshold value,
-        compute the center of the image, and mark the center of the image with a small cross sign filled with pixels of value around 128 */
-
-        /* Compute the center */
         for (i = 0; i < ROWS; i++)
         {
             for (j = 0; j < COLUMNS; j++)
@@ -70,7 +66,7 @@ int main(int argc, char **argv)
 				}
 				else
 					bimage[i][j] = 0;
-			}
+	   }
         }
 
         xbar /= A;
