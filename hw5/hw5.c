@@ -50,7 +50,14 @@ int main( int argc, char** argv )
 	 /*some suggestions: 1) calculate max sgm value;
 	 			 2) calculate normalized sgm value: sgm_norm = sgm_each_pixel / sgm_max * 255 
 				  */
-
+	for(i=1; i < ROWS; i++)
+	{
+		for(j=0; j < COLUMNS; j++)
+		{
+			dedx = -image[i-1][j-1] + image[i-1][j+1] + (-2)*image[i][j-1] + (2)*image[i][j+1] + -image[i+1][j-1] + image[i+1][j+1];
+			dedy = -image[i-1][j-1] + (-2)*image[i-1][j] - image[i-1][j+1] + image[i+1][j-1] + (2)*image[i+1][j] + image[i+1][j+1]; 
+		}
+	}
 
 
 
