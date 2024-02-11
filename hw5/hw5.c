@@ -19,7 +19,7 @@ int main( int argc, char** argv )
 	// index[3][2]: used for store rho and theta
 	int				dedx, dedy, sgm, localmax[3] = {0, 0, 0}, index[3][2] = { 0, 0, 0, 0, 0, 0 };
 	// voting; voting array
-	int				sgm_threshold, hough_threshold, voting[][];
+	int				sgm_threshold, hough_threshold, voting[180][400];
 	FILE*			fp;
 	unsigned char	image[ROWS][COLUMNS], simage[ROWS][COLUMNS], head[32];
 	char			filename[50], ifilename[50];
@@ -29,7 +29,8 @@ int main( int argc, char** argv )
 	strcpy ( filename, "image.raw");
 	memset ( voting, 0, sizeof(int) * 180 * 400 );  //180 * 400 is the suggested size of voting array
 	header(ROWS, COLUMNS, head);
-	 
+	sgmmax = 0;
+	sgm_threshold = 100;
 
 	/* Read in the image */
 	if (!( fp = fopen(filename, "rb" ) ))
@@ -52,12 +53,20 @@ int main( int argc, char** argv )
 				  */
 	for(i=1; i < ROWS; i++)
 	{
-		for(j=0; j < COLUMNS; j++)
+		for(j=1; j < COLUMNS; j++)
 		{
 			dedx = -image[i-1][j-1] + image[i-1][j+1] + (-2)*image[i][j-1] + (2)*image[i][j+1] + -image[i+1][j-1] + image[i+1][j+1];
 			dedy = -image[i-1][j-1] + (-2)*image[i-1][j] - image[i-1][j+1] + image[i+1][j-1] + (2)*image[i+1][j] + image[i+1][j+1]; 
+			sgm = sqr(dedx) + sqr(dedy);
+			if(sgm > sgmmax)
+				sgmmax = sgm;
+			simage[i][j] = sgm; // store sgm value for threshold 
 		}
 	}
+
+	for(i=0; i < ROWS; i++) // normalizing the sgm values 
+		for(j=0; j < COLUMNS; j++)
+			simage[i][j] = (float)(simage[i][j] / sgmmax) * 255; // Normalize SGM value
 
 
 
@@ -67,7 +76,21 @@ int main( int argc, char** argv )
 		    1) if sgm_norm is greater than the sgm_threshold, increase the vote;
 			2) find out the three largest values/clusters in the voting array
 		*/
-		 
+	for(i=1; i < ROWS; i++)
+		for(j=1; j < COLUMNS; j++)
+		{
+			dedx = -image[i-1][j-1] + image[i-1][j+1] + (-2)*image[i][j-1] + (2)*image[i][j+1] + -image[i+1][j-1] + image[i+1][j+1];
+			dedy = -image[i-1][j-1] + (-2)*image[i-1][j] - image[i-1][j+1] + image[i+1][j-1] + (2)*image[i+1][j] + image[i+1][j+1]; 
+			if(simage[i][j] > sgm_threshold)
+			{
+				float theta = atan2(dedy, dedx);
+				if(theta < 0)
+					theta += PI;
+				int theta_index = (int)round(theta * 180 / PI);
+				int rho_index = j * cos(theta) + i * sin(theta) + 200;
+				voting[theta_index][rho_index]++; 				
+			}
+		}
 
 	
 
@@ -83,14 +106,15 @@ int main( int argc, char** argv )
 	for (i = 0; i < ROWS; i++)
 		fwrite(simage[i], sizeof(char), COLUMNS, fp);
 	fclose(fp);
-
 	/* Compute the binary image */
-
-
-
-
-
-
+	for(i=0; i < ROWS; i++)
+		for(j=0; j < COLUMNS; j++)
+		{
+			if(simage[i][j] > sgm_threshold)
+				simage[i][j] = 255; 
+			else
+				simage[i][j] = 0; 
+		}
 
 	/* Save the thresholded SGM to an image */
 	strcpy(filename, "image");
@@ -122,7 +146,7 @@ int main( int argc, char** argv )
 	fclose(fp);
 
 	/* Threshold the voting array */
-
+	int voting_
 
 
 
