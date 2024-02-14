@@ -12,7 +12,8 @@
 
 void clear(unsigned char image[][COLUMNS]);
 void header(int row, int col, unsigned char head[32]);
-
+void fill_voting_array(unsigned char voting[180][400], int i, int j);
+void find_max(unsigned char voting[180][400], int max[3], int index[4][2]);
 int main(int argc, char **argv)
 {
     int i, j, sgmmax, a;
@@ -23,6 +24,7 @@ int main(int argc, char **argv)
     char filename[50], ifilename[50];
     float theta, rho;
     int index[4][2] = {0}; // Initialize index array
+	int localmax[3] = {0, 0, 0};
 
     clear(simage);
     strcpy(filename, "image.raw");
@@ -77,22 +79,9 @@ int main(int argc, char **argv)
     /* build up voting array */
     sgm_threshold = 100;
     for (i = 0; i < ROWS; i++)
-    {
         for (j = 0; j < COLUMNS; j++)
-        {
             if (simage[i][j] == 255)
-            {
-                for (a = 0; a < 180; a++)
-                {
-                    rho = (float)(ROWS - i - 1) * cosf(a * PI / 180.0) - (float)j * sinf(theta * PI / 180.0);
-                    int c = a;
-					int b = (int)((rho / 4.0) + 200.0); // normalized rho
-                    if (b >= 0 && b < 400)
-                        voting[c][b]++;
-                }
-            }
-        }
-    }
+            	fill_voting_array(voting, j, ROWS-i-1);
 
     /* Save SGM to an image */
     strcpy(filename, "image");
@@ -119,62 +108,33 @@ int main(int argc, char **argv)
         fwrite(simage[i], sizeof(char), COLUMNS, fp);
     fclose(fp);
 
-    // Find local maxima
-    int max[4] = {-1};
-    int max_dist = 10;
-
-    for (int k = 0; k < 4; k++)
+    /* Save voting image */
+    strcpy(filename, "image");
+	header(180, 400, head);
+    if (!(fp = fopen(strcat(filename, "-voting_array.ras"), "wb")))
     {
-        int temp_max = -1;
-        int temp_idx = 0;
-        int temp_idy = 0;
-        int dist = 180 * 180 + 400 * 400;
-
-        for (i = 0; i < 180; i++)
-        {
-            for (j = 0; j < 400; j++)
-            {
-                if (voting[i][j] > temp_max)
-                {
-                    bool is_far_enough = true;
-
-                    for (int idx = 0; idx < k; idx++)
-                    {
-                        int idy = index[idx][0];
-                        if (idy < 0)
-                            break;
-
-                        if (abs(i - idy) < max_dist && abs(j - index[idx][1]) < max_dist && abs(j - index[idx][1]) >= abs(i - idy))
-                        {
-                            is_far_enough = false;
-                            break;
-                        }
-                    }
-
-                    if (is_far_enough)
-                    {
-                        temp_max = voting[i][j];
-                        temp_idx = i;
-                        temp_idy = j;
-                    }
-                }
-            }
-        }
-
-        max[k] = temp_max;
-        index[k][0] = temp_idx;
-        index[k][1] = temp_idy;
+        fprintf(stderr, "error: could not open %s\n", filename);
+        exit(1);
     }
+    fwrite(head, 4, 8, fp);
+    for (i = 0; i < 180; i++)
+        fwrite(voting[i], sizeof(char), 400, fp);
+    fclose(fp);
 
-    hough_threshold = max[3];
+
+
+	// local maxima
+	find_max(voting, localmax, index);	
+
+    hough_threshold = localmax[2];
 	for(i=0; i < 180; i++)
 		for(j=0; j < 400; j++)
 			voting[i][j] = (voting[i][j] < hough_threshold) ? 0:255;
 
 	printf("Hough threshold: %d\n", hough_threshold);
-    printf("%d %d %d\n%d %d %d\n%d %d %d\n", index[0][0], index[0][1], max[0],
-                                            index[1][0], index[1][1] , max[1],
-                                            index[2][0], index[2][1], max[2]);
+    printf("%d %d %d\n%d %d %d\n%d %d %d\n", index[0][0], index[0][1], localmax[0],
+                                            index[1][0], index[1][1] , localmax[1],
+                                            index[2][0], index[2][1], localmax[2]);
 	
 	//clear(simage);
 	// reconstructing image from voting array
@@ -266,3 +226,65 @@ void header(int row, int col, unsigned char head[32])
     head[16] = *ch;
 }
 
+
+void fill_voting_array(unsigned char voting[180][400], int x, int y)
+{
+	int t_i, r_i, a;
+	for(a=0; a < 180; a++)
+	{
+		float rho = (float)y * cosf(a * PI/180.0) - (float)x * sinf(a * PI/ 180.0);
+		t_i = a;
+		r_i = (int)((rho / 4.0) + 200); // normalization
+		voting[t_i][r_i]++;
+	}
+}
+
+
+
+void find_max(unsigned char voting[180][400], int max[3], int index[4][2])
+{
+	max[0] = -1;
+	max[1] = -1;
+	max[2] = -1;
+	int i, j, k, idx, idy, distance;
+	int temp_max;
+	int temp_idx = 0;
+	int temp_idy = 0;
+	int max_dist = 10;
+	bool far;
+	for(k=0; k < 3; k++)
+	{
+		temp_max = -1;
+		distance = sqr(180) + sqr(400);
+		for(i=0; i < 180; i++)
+		{
+			for(j=0; j<400; j++)
+			{
+				if(voting[i][j] > temp_max)
+				{
+					far = true;
+					for(idx=0; idx < k; idx++)
+					{
+						idy = index[idx][0];
+						if(idy < 0) break;
+						if (abs(i-idy) < max_dist && abs(j-index[idx][1]) < max_dist && abs(j-index[idx][1]) >= abs(i-idy))
+						{
+							far=false;
+							break;
+						}
+					}
+					if(far)
+					{
+						temp_max = voting[i][j];
+						temp_idx = i;
+						temp_idy = j;
+					}
+				}
+			}
+		}
+		
+		max[k] = temp_max;
+		index[k][0] = temp_idx;
+		index[k][1] = temp_idy;
+	}
+}
