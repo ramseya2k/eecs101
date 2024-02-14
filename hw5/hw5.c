@@ -119,7 +119,29 @@ int main( int argc, char** argv )
 		for(j=0; j < COLUMNS; j++)
 			if(simage[i][j] == 255)
 			{
+				for(theta = 0; theta < 180; theta++)
+				{
+					rho = (ROWS - i - 1) * cosf(theta * PI / 180.0) - j*sinf(theta * PI / 180.0);
+					int a = (int)(rho / 4.0) + 200.0; // the normalized rho 
+					if(a >= 0 && a < 400)
+						voting[(int)theta][a]++;
+				}
+			}
 
+	strcpy(filename, "image");
+	header(180, 400, head);
+	if (!(fp = fopen(strcat(filename, "-voting_array.ras"), "wb")))
+	{
+		fprintf(stderr, "error: could not open %s\n", filename);
+		exit(1);
+	}
+	fwrite(head, 4, 8, fp);
+	for (i = 0; i < 180; i++)
+		fwrite(voting[i], sizeof(char), 400, fp);
+	fclose(fp);
+
+	// find local maxima
+	
 
 	printf("Finished!");
 
