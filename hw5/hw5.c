@@ -55,10 +55,8 @@ int main(int argc, char **argv)
         {
             dedx = abs(image[i - 1][j - 1] + 2 * image[i][j - 1] + image[i + 1][j - 1] -
                        image[i - 1][j + 1] - 2 * image[i][j + 1] - image[i + 1][j + 1]);
-
             dedy = abs(image[i - 1][j - 1] + 2 * image[i - 1][j] + image[i - 1][j + 1] -
                        image[i + 1][j - 1] - 2 * image[i + 1][j] - image[i + 1][j + 1]);
-
             sgm = sqr(dedx) + sqr(dedy);
             if (sgm > sgmmax)
                 sgmmax = sgm;
