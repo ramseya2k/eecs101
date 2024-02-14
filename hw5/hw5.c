@@ -114,110 +114,12 @@ int main( int argc, char** argv )
 		fwrite(simage[i], sizeof(char), COLUMNS, fp);
 	fclose(fp);
 
-
-	// initializing voting array && hough array
-	int hough_array[180][400];
-	for(i=0; i < 180; i++)
-		for(j=0; j < 400; j++)
-			voting[i][j] = 0;
-			hough_array[i][j] = 0;
-
-	for(theta=0; theta < 180; theta++)
-		for(i=0; i < ROWS; i++)
-			for(j=0; j < COLUMNS; j++)
-				if(simage[i][j] == 255)
-				{
-					rho = i * cos(theta * PI / 180) - j * sin(theta * PI / 180);
-					voting[(int)theta][(int)rho + 200] += 1;
-				}
-
-	for(i=0; i < 180; i++)
-		for(j=0; j < 400; j++)
-			if(voting[i][j] > 170 && voting[i][j] < 400)
-				hough_array[i][j] = voting[i][j];
-
-	for(i=0; i < 180; i++)
-		for(j=0; j<400; j++)
-			if(hough_array[i][j] > localmax[0])
-				localmax[0] = hough_array[i][j];
-
-
-	for(i=0; i < 180; i++)
-		for(j=0; j<400; j++)
-
-			if(hough_array[i][j] > localmax[1])
-			{
-				if(hough_array[i][j] == localmax[0])
-					continue;
-				else
-					localmax[1] = hough_array[i][j];
-			}
-
-		for(i=0; i < 180; i++)
-			for(j=0; j<400; j++)
-				if(hough_array[i][j] > localmax[1])
-				{
-					if(hough_array[i][j] == localmax[0] || hough_array[i][j] == localmax[1])
-						continue;
-					else
-						localmax[2] = hough_array[i][j];
-				}
-
-
-
-		for (i = 0; i < 180; i++) 
-		{
-			for (j = 0; j < 400; j++) {
-				if (voting[i][j] == localmax[0]) {
-					index[0][0] = i;
-					index[0][1] = j - 200;
-				}
-				if (voting[i][j] == localmax[1]) {
-					index[1][0] = i;
-					index[1][1] = j-200;
-				}
-				if (voting[i][j] == localmax[2]) {
-					index[2][0] = i;
-					index[2][1] = j - 200;
-				}
-			}
-	}
-
-	/* Save original voting array to an image */
-	/*
-	strcpy(filename, "image");
-	header(180, 400, head);
-	if (!(fp = fopen(strcat(filename, "-voting_array.ras"), "wb")))
-	{
-		fprintf(stderr, "error: could not open %s\n", filename);
-		exit(1);
-	}
-	fwrite(head, 4, 8, fp);
-
-	for (i = 0; i < 'depends on size of your voting array'; i++)
-		fwrite(simage[i], sizeof(char), 'depends on size of your voting array', fp);
-	fclose(fp);
-	*/
-	/* Threshold the voting array */
-	int x = 0;
+	// voting array 
 	for(i=0; i < ROWS; i++)
 		for(j=0; j < COLUMNS; j++)
-			for(x=0; x < 3; x++)
-				if (abs(j * sin(index[x][0] * PI / 180) - i * cos(index[x][0] * PI / 180) + index[x][1]) == 0)
-					simage[i][j] = 255;
-	/* Write the thresholded voting array to a new image */
-	strcpy(filename, "image");
-	header(ROWS, COLUMNS, head);
-	if (!(fp = fopen(strcat(filename, "-voting_array.ras"), "wb")))
-	{
-		fprintf(stderr, "error: could not open %s\n", filename);
-		exit(1);
-	}
-	fwrite(head, 4, 8, fp);
+			if(simage[i][j] == 255)
+			{
 
-	for (i = 0; i < ROWS; i++)
-		fwrite(simage[i], sizeof(char), COLUMNS, fp);
-	fclose(fp);
 
 	printf("Finished!");
 
