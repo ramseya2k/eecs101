@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     memset(voting, 0, sizeof(int) * 180 * 400);
     header(ROWS, COLUMNS, head);
     sgmmax = 0;
-    sgm_threshold = 100;
+    sgm_threshold = 140;
 
     /* Read in the image */
     if (!(fp = fopen(filename, "rb")))
@@ -74,12 +74,6 @@ int main(int argc, char **argv)
             simage[i][j] = (float)(sqr(dedx) + sqr(dedy)) / sgmmax * 255;
         }
 
-    /* build up voting array */
-    sgm_threshold = 100;
-    for (i = 0; i < ROWS; i++)
-        for (j = 0; j < COLUMNS; j++)
-            if (simage[i][j] == 255)
-            	fill_voting_array(voting, j, ROWS-i-1);
 
     /* Save SGM to an image */
     strcpy(filename, "image");
@@ -94,6 +88,12 @@ int main(int argc, char **argv)
         fwrite(simage[i], sizeof(char), COLUMNS, fp);
     fclose(fp);
 
+
+    // computing binary image 
+    for(i=0; i < ROWS; i++)
+        for(j=0; j < COLUMNS; j++)
+            simage[i][j] = (simage[i][j] <= sgm_threshold) ? 0 : 255;
+
     /* Save binary image */
     strcpy(filename, "image");
     if (!(fp = fopen(strcat(filename, "-binary.ras"), "wb")))
@@ -105,6 +105,13 @@ int main(int argc, char **argv)
     for (i = 0; i < ROWS; i++)
         fwrite(simage[i], sizeof(char), COLUMNS, fp);
     fclose(fp);
+
+
+    /* build up voting array */
+    for (i = 0; i < ROWS; i++)
+        for (j = 0; j < COLUMNS; j++)
+            if (simage[i][j] == 255)
+            	fill_voting_array(voting, j, ROWS-i-1);
 
     /* Save voting image */
     strcpy(filename, "image");
@@ -124,7 +131,7 @@ int main(int argc, char **argv)
 	// local maxima
 	find_max(voting, localmax, index);	
 
-    hough_threshold = localmax[2];
+    hough_threshold = localmax[0];
 	for(i=0; i < 180; i++)
 		for(j=0; j < 400; j++)
 			voting[i][j] = (voting[i][j] < hough_threshold) ? 0:255;
@@ -134,16 +141,15 @@ int main(int argc, char **argv)
                                             index[1][0], index[1][1] , localmax[1],
                                             index[2][0], index[2][1], localmax[2]);
 	
-	//clear(simage);
+	clear(simage);
 	// reconstructing image from voting array
 	for(i=0; i < ROWS -1; i++)
 		for(j=0; j < COLUMNS-1; j++)
 		{
 			float radians = (index[2][0] * PI) / 180;
 			rho = (index[2][1]-200)*3;
-			if((int)((j*sinf(radians)) - ((ROWS-i-1)*cosf(radians)) + rho) == 0)
+			if((int)((j*sinf(radians)) - ((ROWS-i-1)*cosf(radians)) + rho) ==0)
 				simage[i][j] = 255;
-
 			radians = (index[1][0] * PI) / 180;
 			rho = (index[1][1] - 200) * 3;
 			if((int)((j*sinf(radians)) - ((ROWS-i-1)*cosf(radians)) + rho) == 0)
@@ -153,7 +159,6 @@ int main(int argc, char **argv)
 			rho = (index[0][1] - 200) * 3;
 			if((int)((j*sinf(radians)) - ((ROWS-i-1)*cosf(radians)) + rho) == 0)
 				simage[i][j] = 255;
-
 		}
 	
 
@@ -232,7 +237,7 @@ void fill_voting_array(unsigned char voting[180][400], int x, int y)
 	{
 		float rho = (float)y * cosf(a * PI/180.0) - (float)x * sinf(a * PI/ 180.0);
 		t_i = a;
-		r_i = (int)((rho / 4.0) + 200); // normalization
+		r_i = (int)((rho / 4.0) + 200.0); // normalization
 		voting[t_i][r_i]++;
 	}
 }
