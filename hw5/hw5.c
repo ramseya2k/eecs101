@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <stdbool.h> // Include this for bool type
-
 #define ROWS    480
 #define COLUMNS 640
 #define PI 3.14159265358979323846
@@ -254,7 +252,7 @@ void find_max(unsigned char voting[180][400], int max[3], int index[4][2])
 	int temp_idx = 0;
 	int temp_idy = 0;
 	int max_dist = 10;
-	bool far;
+	int far;
 	for(k=0; k < 3; k++)
 	{
 		temp_max = -1;
@@ -265,14 +263,14 @@ void find_max(unsigned char voting[180][400], int max[3], int index[4][2])
 			{
 				if(voting[i][j] > temp_max)
 				{
-					far = true;
+					far = 1;
 					for(idx=0; idx < k; idx++)
 					{
 						idy = index[idx][0];
 						if(idy < 0) break;
 						if (abs(i-idy) < max_dist && abs(j-index[idx][1]) < max_dist && abs(j-index[idx][1]) >= abs(i-idy))
 						{
-							far=false;
+							far=0;
 							break;
 						}
 					}
