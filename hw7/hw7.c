@@ -6,7 +6,7 @@
 #define ROWS	240
 #define COLUMNS	240
 #define PI 3.14159265358979323846
-
+#define sqr ((x)*(x))
 void clear( unsigned char image[][COLUMNS] );
 void header( int row, int col, unsigned char head[32] );
 
@@ -24,7 +24,96 @@ int main( int argc, char** argv )
 	
 	for ( k = 0; k < 9; k ++ )
 	{
-		/* some suggestions: you can use 'switch' to loop through case 1 - 9
+		clear(image);
+        switch(k)
+        {
+            case 0:
+                strcopy(filename, "sphere-1.ras");
+                s[0] = 0;
+                s[1] = 0;
+                s[2] = 1;
+                r = 50;
+                a = 0.5;
+                m = 1;
+                break;
+            case 1:
+                strcopy(filename, "sphere-2.ras");
+                s[0] = 1/sqrt(3);
+                s[1] = 1/sqrt(3);
+                s[2] = 1/sqrt(3);
+                r = 50;
+                a = 0.5;
+                m = 1;
+                break;
+            case 2:
+                strcopy(filename, "sphere-3.ras");
+                s[0] = 1;
+                s[1] = 0;
+                s[2] = 0;
+                r = 50;
+                a = 0.5;
+                m = 1;
+                break;
+            case 3:
+                strcopy(filename, "sphere-4.ras");
+                s[0] = 0;
+                s[1] = 0;
+                s[2] = 1;
+                r = 10;
+                a = 0.5;
+                m = 1;
+                break;
+            case 4:
+                strcopy(filename, "sphere-5.ras");
+                s[0] = 0;
+                s[1] = 0;
+                s[2] = 1;
+                r = 100;
+                a = 0.5;
+                m = 1;
+                break;
+            case 5:
+                strcopy(filename, "sphere-6.ras");
+                s[0] = 0;
+                s[1] = 0;
+                s[2] = 1;
+                r = 50;
+                a = .1;
+                m = 1;
+                break;
+            case 6:
+                s[0] = 0;
+                s[1] = 0;
+                s[2] = 1;
+                r = 50;
+                a = 1;
+                m = 1;
+                strcopy(filename, "sphere-7.ras");
+                break;
+            case 7:
+                s[0] = 0;
+                s[1] = 0;
+                s[2] = 1;
+                r = 50;
+                a = 0.5;
+                m = 0.1;
+                strcopy(filename, "sphere-8.ras");
+                break;
+            case 8:
+                s[0] = 0;
+                s[1] = 0;
+                s[2] = 1;
+                r = 50;
+                a = 0.5;
+                m = 10000;
+                strcopy(filename, "sphere-9.ras");
+                break;
+            default:
+                printf("Nothing to do here\n");
+                break;
+        }
+        
+        /* some suggestions: you can use 'switch' to loop through case 1 - 9
 			e.g. switch(k) 
 				{
 					case 1:
